@@ -1,22 +1,54 @@
-import {json} from "@remix-run/node";
-import {useLoaderData} from "@remix-run/react";
+import {json, LoaderFunction} from "@remix-run/node";
+import {Form, useLoaderData, useNavigation, useSearchParams} from "@remix-run/react";
 import {getAllShelves} from "~/models/pantry-shelf.server";
 import cls from "classnames";
+import {SearchIcon} from "../../../components/icons";
 
 
-export const loader = async () => {
-    const shelves = await getAllShelves();
+interface LoaderData {
+    shelves: Awaited<ReturnType<typeof getAllShelves>>
+}
+
+export const loader: LoaderFunction = async ({request}) => {
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q');
+    const shelves = await getAllShelves(q);
     return json({shelves});
 };
 
 
+// ################################################# JSX #################################################
+
+
 const Pantry = () => {
-    const data = useLoaderData<typeof loader>();
+    const data = useLoaderData() as unknown as LoaderData;
+    const [searchParams] = useSearchParams();
+    const navigation = useNavigation();
+    const isSearching = navigation.formData?.has('q')
+
     return (
         <div>
-            <ul className={cls('flex gap-8 overflow-x-auto', 'snap-x snap-mandatory', 'md:snap-none')}>
+            {/*form*/}
+            <Form className={cls(
+                'flex border-2 border-gray-300 rounded-md',
+                'focus-within:border-primary', isSearching ? 'animate-pulse' : '')}>
+                <button className={'w-10 px-2'}>
+                    <SearchIcon/>
+                </button>
+                <input
+                    defaultValue={searchParams.get('q') || ''}
+                    type="text"
+                    name="q"
+                    autoComplete="off"
+                    placeholder="Search for an item"
+                    className={'w-full py-3 px-2 outline-none'}
+                />
+            </Form>
+
+            {/*shelves*/}
+            <ul className={cls('flex gap-8 overflow-x-auto', 'snap-x snap-mandatory', 'md:snap-none mt-4')}>
                 {
-                    // retrieving the shelves from the loader data and map over them to render each shelf
+                    // retrieving the shelves from the loader data
                     data.shelves.map(shelf => (
                         <li
                             key={shelf.id}
@@ -31,7 +63,7 @@ const Pantry = () => {
                             <h1 className={'text-2xl font-extrabold mb-2'}>{shelf.name}</h1>
                             <ul>
                                 {
-                                    // retrieving the items from the shelf and map over them to render each item
+                                    // retrieving the items from the shelf
                                     shelf.items.map(item => (
                                         <li key={item.id} className={'py-2'}>
                                             {item.name}
