@@ -1,8 +1,9 @@
-import {json, LoaderFunction} from "@remix-run/node";
+import {ActionFunction, json, LoaderFunction} from "@remix-run/node";
 import {Form, useLoaderData, useNavigation, useSearchParams} from "@remix-run/react";
-import {getAllShelves} from "~/models/pantry-shelf.server";
+import {createShelf, getAllShelves} from "~/models/pantry-shelf.server";
 import cls from "classnames";
-import {SearchIcon} from "../../../components/icons";
+import {PlusIcon, SearchIcon} from "../../../components/icons";
+import {PrimaryButton} from "../../../components/forms";
 
 
 interface LoaderData {
@@ -16,6 +17,10 @@ export const loader: LoaderFunction = async ({request}) => {
     return json({shelves});
 };
 
+export const action: ActionFunction = async () => {
+    return createShelf();
+}
+
 
 // ################################################# JSX #################################################
 
@@ -25,10 +30,11 @@ const Pantry = () => {
     const [searchParams] = useSearchParams();
     const navigation = useNavigation();
     const isSearching = navigation.formData?.has('q')
+    const isCreatingShelf = navigation.formData?.has('createShelf');
 
     return (
         <div>
-            {/*form*/}
+            {/*search*/}
             <Form className={cls(
                 'flex border-2 border-gray-300 rounded-md',
                 'focus-within:border-primary', isSearching ? 'animate-pulse' : '')}>
@@ -45,8 +51,23 @@ const Pantry = () => {
                 />
             </Form>
 
+            {/*create shelf*/}
+            <Form method={'POST'} action={''}>
+                <PrimaryButton
+                    name={'createShelf'}
+                    className={cls('mt-4 w-full md:w-fit', isCreatingShelf ? 'bg-primary-light' : '')}
+                >
+                    <div className={'w-8'}>
+                        <PlusIcon/>
+                    </div>
+                    <div className={'pt-1 p-2'}>
+                        <span>{isCreatingShelf ? 'Creating the Shelf' : 'Create Shelf'}</span>
+                    </div>
+                </PrimaryButton>
+            </Form>
+
             {/*shelves*/}
-            <ul className={cls('flex gap-8 overflow-x-auto', 'snap-x snap-mandatory', 'md:snap-none mt-4')}>
+            <ul className={cls('flex gap-8 overflow-x-auto', 'snap-x snap-mandatory', 'md:snap-none mt-4 pb-4')}>
                 {
                     // retrieving the shelves from the loader data
                     data.shelves.map(shelf => (
