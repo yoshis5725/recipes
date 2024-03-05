@@ -34,3 +34,11 @@ export async function createShelf(): Promise<ShelfType> {
         }
     });
 }
+
+export async function deleteShelf(shelfId: string) {
+    return db.pantryShelf.delete({
+        where: {
+            id: shelfId
+        }
+    });
+}

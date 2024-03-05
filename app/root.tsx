@@ -48,9 +48,9 @@ function AppNavLink({to, children}: AppNavLinkProps) {
                 {
                     ({isActive}) => (
                         <div className={
-                            cls('p-4 flex justify-center hover:bg-primary-light',
-                                isActive ? 'bg-primary-light' : '',
-                                isLoading ? 'animate-pulse bg-primary-light' : ''
+                            cls('p-4 flex justify-center hover:bg-green-400',
+                                isActive ? 'bg-green-400' : '',
+                                isLoading ? 'animate-pulse bg-green-400' : ''
                             )
                         }>
                             {children}
@@ -77,7 +77,7 @@ export default function App() {
             <title></title>
         </head>
         <body className={'md:flex md:h-screen'}>
-        <nav className={'bg-primary text-white'}>
+        <nav className={'bg-green-600 text-white'}>
             <ul className={'flex md:flex-col'}>
                 <AppNavLink to={'/'}>
                     <HomeIcon/>
